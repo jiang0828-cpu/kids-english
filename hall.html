@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习大厅 - KidsEnglish</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部导航 -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🐼</span>
+        <span>KidsEnglish</span>
+      </div>
+      <div class="progress-bar">
+        <span>⭐</span>
+        <span class="star-count">0</span>
+      </div>
+    </header>
+
+    <!-- 学习大厅标题 -->
+    <h1 class="hall-title">选择你想学习的内容！</h1>
+
+    <!-- 模块网格 -->
+    <div class="modules-grid">
+      <!-- 字母王国 -->
+      <div class="module-card alphabet" onclick="goToModule('alphabet')">
+        <div class="module-icon">🅰️</div>
+        <div class="module-name">字母王国</div>
+        <div class="module-desc">学习26个英文字母</div>
+      </div>
+
+      <!-- 单词乐园 -->
+      <div class="module-card words" onclick="goToModule('words')">
+        <div class="module-icon">🐶</div>
+        <div class="module-name">单词乐园</div>
+        <div class="module-desc">认识动物、颜色、水果</div>
+      </div>
+
+      <!-- 对话小屋 -->
+      <div class="module-card dialogue" onclick="goToModule('dialogue')">
+        <div class="module-icon">💬</div>
+        <div class="module-name">对话小屋</div>
+        <div class="module-desc">学习日常对话</div>
+      </div>
+
+      <!-- 音乐剧场 -->
+      <div class="module-card songs" onclick="goToModule('songs')">
+        <div class="module-icon">🎵</div>
+        <div class="module-name">音乐剧场</div>
+        <div class="module-desc">唱英语儿歌</div>
+      </div>
+
+      <!-- 游戏天地 -->
+      <div class="module-card games" onclick="goToModule('games')">
+        <div class="module-icon">🎮</div>
+        <div class="module-name">游戏天地</div>
+        <div class="module-desc">玩游戏学英语</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/content.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    function goToModule(module) {
+      SoundManager.playClick();
+      window.location.href = `modules/${module}.html`;
+    }
+  </script>
+</body>
+</html>

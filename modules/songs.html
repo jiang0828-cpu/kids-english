@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音乐剧场 - KidsEnglish</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部导航 -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🐼</span>
+        <span>KidsEnglish</span>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="progress-bar">
+          <span>⭐</span>
+          <span class="star-count">0</span>
+        </div>
+        <button class="back-btn" onclick="goBack()">← 返回</button>
+      </div>
+    </header>
+
+    <!-- 模块标题 -->
+    <div class="module-header">
+      <h1 class="module-title" style="color: var(--primary-purple);">🎵 音乐剧场</h1>
+      <p>点击儿歌，一起唱起来！</p>
+    </div>
+
+    <!-- 儿歌列表 -->
+    <div class="songs-list" id="songsList">
+      <!-- 儿歌列表将通过JS动态生成 -->
+    </div>
+  </div>
+
+  <!-- 歌词弹窗 -->
+  <div class="modal-overlay" id="lyricsModal" onclick="closeLyrics(event)">
+    <div class="modal-content" style="max-width: 700px; max-height: 80vh; overflow-y: auto;">
+      <div class="modal-icon">🎵</div>
+      <div class="modal-title" id="lyricsTitle"></div>
+      <div id="lyricsContent" style="font-size: 20px; line-height: 2; margin: 30px 0; text-align: left; padding: 0 20px;"></div>
+      <button class="modal-btn" onclick="singSong()">🎤 跟我唱</button>
+      <button class="modal-btn" style="background: #78909C; margin-left: 10px;" onclick="closeLyricsModal()">关闭</button>
+    </div>
+  </div>
+
+  <script src="../data/content.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    let currentSongIndex = -1;
+    let sungSongs = new Set();
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      renderSongs();
+    });
+
+    // 渲染儿歌列表
+    function renderSongs() {
+      const list = document.getElementById('songsList');
+      list.innerHTML = '';
+      
+      songsData.forEach((song, index) => {
+        const item = document.createElement('div');
+        item.className = 'song-item fade-in';
+        item.style.animationDelay = `${index * 0.1}s`;
+        
+        if (sungSongs.has(index)) {
+          item.style.borderLeft = '5px solid var(--primary-green)';
+        }
+        
+        item.innerHTML = `
+          <div class="song-number">${index + 1}</div>
+          <div class="song-info">
+            <div class="song-title">${song.title}</div>
+            <div class="song-duration">${song.titleChinese} · ${song.duration}</div>
+          </div>
+          <button class="song-play-btn" onclick="showLyrics(${index}, event)">▶️</button>
+        `;
+        
+        list.appendChild(item);
+      });
+    }
+
+    // 显示歌词
+    function showLyrics(index, event) {
+      event.stopPropagation();
+      SoundManager.playClick();
+      
+      currentSongIndex = index;
+      const song = songsData[index];
+      
+      document.getElementById('lyricsTitle').textContent = song.title;
+      
+      const lyricsHtml = song.lyrics.map((line, i) => 
+        `<div style="padding: 8px 0; ${i % 2 === 0 ? 'color: var(--primary-purple); font-weight: 700;' : 'color: #78909C;'}">${line}</div>`
+      ).join('');
+      
+      document.getElementById('lyricsContent').innerHTML = lyricsHtml;
+      document.getElementById('lyricsModal').classList.add('active');
+      
+      // 标记为已唱
+      if (!sungSongs.has(index)) {
+        sungSongs.add(index);
+        
+        // 每唱一首歌奖励一颗星
+        ProgressManager.addStars(1);
+        saveProgress();
+        
+        // 更新列表样式
+        renderSongs();
+      }
+    }
+
+    // 唱儿歌（逐句朗读）
+    function singSong() {
+      if (currentSongIndex < 0) return;
+      
+      const song = songsData[currentSongIndex];
+      let delay = 0;
+      
+      song.lyrics.forEach((line, index) => {
+        setTimeout(() => {
+          // 高亮当前行
+          const lines = document.getElementById('lyricsContent').children;
+          Array.from(lines).forEach((l, i) => {
+            l.style.background = i === index ? '#F3E5F5' : 'transparent';
+            l.style.borderRadius = '8px';
+            l.style.padding = '8px 15px';
+          });
+          
+          // 朗读
+          SpeechManager.speak(line, 0.7, 1.3);
+        }, delay);
+        
+        delay += 2500; // 每句间隔2.5秒
+      });
+      
+      // 播放完后取消高亮
+      setTimeout(() => {
+        const lines = document.getElementById('lyricsContent').children;
+        Array.from(lines).forEach(l => {
+          l.style.background = 'transparent';
+        });
+      }, delay);
+    }
+
+    // 关闭歌词弹窗
+    function closeLyricsModal() {
+      document.getElementById('lyricsModal').classList.remove('active');
+      SpeechManager.stop();
+      currentSongIndex = -1;
+    }
+
+    // 点击遮罩关闭
+    function closeLyrics(event) {
+      if (event.target === document.getElementById('lyricsModal')) {
+        closeLyricsModal();
+      }
+    }
+
+    // 保存进度
+    function saveProgress() {
+      const progress = Math.round((sungSongs.size / songsData.length) * 100);
+      ProgressManager.setProgress('songs', progress);
+      localStorage.setItem('kidsEnglish_sungSongs', JSON.stringify([...sungSongs]));
+    }
+
+    // 加载进度
+    function loadProgress() {
+      const saved = localStorage.getItem('kidsEnglish_sungSongs');
+      if (saved) {
+        sungSongs = new Set(JSON.parse(saved));
+      }
+    }
+
+    // 返回大厅
+    function goBack() {
+      SoundManager.playClick();
+      SpeechManager.stop();
+      window.location.href = '../hall.html';
+    }
+  </script>
+</body>
+</html>

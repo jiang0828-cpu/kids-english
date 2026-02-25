@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>字母王国 - KidsEnglish</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部导航 -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🐼</span>
+        <span>KidsEnglish</span>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="progress-bar">
+          <span>⭐</span>
+          <span class="star-count">0</span>
+        </div>
+        <button class="back-btn" onclick="goBack()">← 返回</button>
+      </div>
+    </header>
+
+    <!-- 模块标题 -->
+    <div class="module-header">
+      <h1 class="module-title" style="color: var(--primary-blue);">🅰️ 字母王国</h1>
+      <p>点击字母卡片，学习字母发音！</p>
+      
+      <!-- 模式选择 -->
+      <div class="mode-selector">
+        <button class="mode-btn parent active" onclick="setMode('parent')">👨‍👩‍👧 亲子模式</button>
+        <button class="mode-btn kid" onclick="setMode('kid')">👶 独立模式</button>
+      </div>
+    </div>
+
+    <!-- 字母网格 -->
+    <div class="alphabet-grid" id="alphabetGrid">
+      <!-- 字母卡片将通过JS动态生成 -->
+    </div>
+  </div>
+
+  <script src="../data/content.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    let currentMode = 'parent';
+    let learnedLetters = new Set();
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAlphabet();
+      loadProgress();
+    });
+
+    // 渲染字母表
+    function renderAlphabet() {
+      const grid = document.getElementById('alphabetGrid');
+      grid.innerHTML = '';
+      
+      alphabetData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'letter-card fade-in';
+        card.style.animationDelay = `${index * 0.05}s`;
+        card.innerHTML = `
+          <div class="letter">${item.letter}</div>
+          <div class="letter-word">${item.word}</div>
+          <div class="letter-icon">${item.icon}</div>
+        `;
+        card.onclick = () => learnLetter(item, card);
+        grid.appendChild(card);
+      });
+    }
+
+    // 学习字母
+    function learnLetter(item, card) {
+      SoundManager.playClick();
+      
+      // 播放字母发音
+      SpeechManager.speak(item.letter);
+      
+      // 延迟播放单词
+      setTimeout(() => {
+        SpeechManager.speak(`${item.letter} for ${item.word}`);
+      }, 1000);
+      
+      // 标记为已学习
+      if (!learnedLetters.has(item.letter)) {
+        learnedLetters.add(item.letter);
+        card.style.borderColor = 'var(--primary-green)';
+        
+        // 每学习5个字母奖励一颗星
+        if (learnedLetters.size % 5 === 0) {
+          ProgressManager.addStars(1);
+          showEncouragement();
+        }
+        
+        // 保存进度
+        saveProgress();
+      }
+      
+      // 添加动画效果
+      card.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+        card.style.transform = '';
+      }, 200);
+    }
+
+    // 设置学习模式
+    function setMode(mode) {
+      SoundManager.playClick();
+      currentMode = mode;
+      
+      // 更新按钮状态
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // 根据模式调整提示
+      if (mode === 'parent') {
+        showParentGuide();
+      }
+    }
+
+    // 显示家长引导
+    function showParentGuide() {
+      ModalManager.show(
+        '亲子模式',
+        '家长可以引导孩子：\n1. 先让孩子看字母和图案\n2. 大声读出字母和单词\n3. 鼓励孩子跟读\n4. 在日常生活中寻找这些字母',
+        '👨‍👩‍👧'
+      );
+    }
+
+    // 显示鼓励
+    function showEncouragement() {
+      const messages = [
+        '太棒了！继续加油！',
+        '你真聪明！',
+        '做得好！',
+        '超级厉害！'
+      ];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      
+      // 创建鼓励提示
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, var(--primary-yellow) 0%, var(--primary-orange) 100%);
+        color: var(--text-dark);
+        padding: 30px 50px;
+        border-radius: 20px;
+        font-size: 28px;
+        font-weight: 800;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        z-index: 1000;
+        animation: fadeIn 0.3s;
+      `;
+      toast.textContent = `⭐ ${randomMessage}`;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 2000);
+    }
+
+    // 保存进度
+    function saveProgress() {
+      const progress = Math.round((learnedLetters.size / 26) * 100);
+      ProgressManager.setProgress('alphabet', progress);
+      localStorage.setItem('kidsEnglish_learnedLetters', JSON.stringify([...learnedLetters]));
+    }
+
+    // 加载进度
+    function loadProgress() {
+      const saved = localStorage.getItem('kidsEnglish_learnedLetters');
+      if (saved) {
+        learnedLetters = new Set(JSON.parse(saved));
+        // 更新已学习字母的样式
+        document.querySelectorAll('.letter-card').forEach((card, index) => {
+          if (learnedLetters.has(alphabetData[index].letter)) {
+            card.style.borderColor = 'var(--primary-green)';
+          }
+        });
+      }
+    }
+
+    // 返回大厅
+    function goBack() {
+      SoundManager.playClick();
+      window.location.href = '../hall.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对话小屋 - KidsEnglish</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部导航 -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🐼</span>
+        <span>KidsEnglish</span>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="progress-bar">
+          <span>⭐</span>
+          <span class="star-count">0</span>
+        </div>
+        <button class="back-btn" onclick="goBack()">← 返回</button>
+      </div>
+    </header>
+
+    <!-- 模块标题 -->
+    <div class="module-header">
+      <h1 class="module-title" style="color: var(--primary-pink);">💬 对话小屋</h1>
+      <p>点击对话，学习日常交流！</p>
+    </div>
+
+    <!-- 对话场景 -->
+    <div class="dialogue-container" id="dialogueContainer">
+      <!-- 对话场景将通过JS动态生成 -->
+    </div>
+  </div>
+
+  <script src="../data/content.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    let practicedLines = new Set();
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      renderDialogues();
+    });
+
+    // 渲染对话场景
+    function renderDialogues() {
+      const container = document.getElementById('dialogueContainer');
+      container.innerHTML = '';
+      
+      dialogueData.forEach((scene, sceneIndex) => {
+        const sceneDiv = document.createElement('div');
+        sceneDiv.className = 'dialogue-scene fade-in';
+        sceneDiv.style.animationDelay = `${sceneIndex * 0.1}s`;
+        
+        let linesHtml = '';
+        scene.lines.forEach((line, lineIndex) => {
+          const lineKey = `${sceneIndex}_${lineIndex}`;
+          const isPracticed = practicedLines.has(lineKey);
+          
+          linesHtml += `
+            <div class="dialogue-line" onclick="practiceLine('${line.english.replace(/'/g, "\\'")}', '${lineKey}', this)" style="${isPracticed ? 'border-left: 5px solid var(--primary-green);' : ''}">
+              <div class="speaker-icon">${line.icon}</div>
+              <div class="dialogue-text">
+                <div class="dialogue-english">${line.english}</div>
+                <div class="dialogue-chinese">${line.chinese}</div>
+              </div>
+              <div class="play-icon">▶️</div>
+            </div>
+          `;
+        });
+        
+        sceneDiv.innerHTML = `
+          <div class="scene-title">${scene.icon} ${scene.title}</div>
+          ${linesHtml}
+        `;
+        
+        container.appendChild(sceneDiv);
+      });
+    }
+
+    // 练习对话
+    function practiceLine(english, lineKey, element) {
+      SoundManager.playClick();
+      
+      // 播放英语
+      SpeechManager.speak(english);
+      
+      // 标记为已练习
+      if (!practicedLines.has(lineKey)) {
+        practicedLines.add(lineKey);
+        element.style.borderLeft = '5px solid var(--primary-green)';
+        
+        // 每练习4句对话奖励一颗星
+        if (practicedLines.size % 4 === 0) {
+          ProgressManager.addStars(1);
+          showEncouragement();
+        }
+        
+        saveProgress();
+      }
+      
+      // 添加动画效果
+      element.style.transform = 'translateX(15px)';
+      setTimeout(() => {
+        element.style.transform = '';
+      }, 200);
+    }
+
+    // 显示鼓励
+    function showEncouragement() {
+      const messages = [
+        '对话说得真好！',
+        '你真棒！',
+        '继续练习！',
+        '越来越好了！'
+      ];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, var(--primary-pink) 0%, #F48FB1 100%);
+        color: white;
+        padding: 30px 50px;
+        border-radius: 20px;
+        font-size: 28px;
+        font-weight: 800;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        z-index: 1000;
+        animation: fadeIn 0.3s;
+      `;
+      toast.textContent = `⭐ ${randomMessage}`;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 2000);
+    }
+
+    // 保存进度
+    function saveProgress() {
+      const totalLines = dialogueData.reduce((sum, scene) => sum + scene.lines.length, 0);
+      const progress = Math.round((practicedLines.size / totalLines) * 100);
+      ProgressManager.setProgress('dialogue', progress);
+      localStorage.setItem('kidsEnglish_practicedLines', JSON.stringify([...practicedLines]));
+    }
+
+    // 加载进度
+    function loadProgress() {
+      const saved = localStorage.getItem('kidsEnglish_practicedLines');
+      if (saved) {
+        practicedLines = new Set(JSON.parse(saved));
+      }
+    }
+
+    // 返回大厅
+    function goBack() {
+      SoundManager.playClick();
+      window.location.href = '../hall.html';
+    }
+  </script>
+</body>
+</html>

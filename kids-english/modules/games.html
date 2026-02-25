@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏天地 - KidsEnglish</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部导航 -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🐼</span>
+        <span>KidsEnglish</span>
+      </div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div class="progress-bar">
+          <span>⭐</span>
+          <span class="star-count">0</span>
+        </div>
+        <button class="back-btn" onclick="goBack()">← 返回</button>
+      </div>
+    </header>
+
+    <!-- 游戏选择界面 -->
+    <div id="gamesMenu">
+      <div class="module-header">
+        <h1 class="module-title" style="color: var(--primary-orange);">🎮 游戏天地</h1>
+        <p>选择游戏，边玩边学！</p>
+      </div>
+
+      <div class="games-grid">
+        <div class="game-card" onclick="startGame('memory')">
+          <div class="game-icon">🃏</div>
+          <div class="game-title">记忆翻牌</div>
+          <div class="game-desc">找出相同的单词卡片！</div>
+          <button class="game-btn">开始游戏</button>
+        </div>
+
+        <div class="game-card" onclick="startGame('listening')">
+          <div class="game-icon">👂</div>
+          <div class="game-title">听音选图</div>
+          <div class="game-desc">听到什么就选什么！</div>
+          <button class="game-btn">开始游戏</button>
+        </div>
+
+        <div class="game-card" onclick="startGame('puzzle')">
+          <div class="game-icon">🧩</div>
+          <div class="game-title">单词拼图</div>
+          <div class="game-desc">把字母拼成正确的单词！</div>
+          <button class="game-btn">开始游戏</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 记忆游戏 -->
+    <div id="memoryGame" class="hidden">
+      <div class="module-header">
+        <h1 class="module-title" style="color: var(--primary-blue);">🃏 记忆翻牌</h1>
+        <div class="game-score">得分: <span class="score-display" id="memoryScore">0</span></div>
+      </div>
+      <div class="memory-game">
+        <div class="memory-grid" id="memoryGrid"></div>
+      </div>
+      <button class="back-btn" onclick="backToMenu()" style="display: block; margin: 30px auto;">返回游戏菜单</button>
+    </div>
+
+    <!-- 听音选图游戏 -->
+    <div id="listeningGame" class="hidden">
+      <div class="module-header">
+        <h1 class="module-title" style="color: var(--primary-green);">👂 听音选图</h1>
+        <div class="game-score">得分: <span class="score-display" id="listeningScore">0</span></div>
+      </div>
+      <div class="listening-game">
+        <button class="play-sound-btn" onclick="playQuestion()">🔊</button>
+        <p style="font-size: 20px; color: #78909C;">点击大按钮听发音，然后选择正确的图片！</p>
+        <div class="options-grid" id="listeningOptions"></div>
+      </div>
+      <button class="back-btn" onclick="backToMenu()" style="display: block; margin: 30px auto;">返回游戏菜单</button>
+    </div>
+
+    <!-- 拼图游戏 -->
+    <div id="puzzleGame" class="hidden">
+      <div class="module-header">
+        <h1 class="module-title" style="color: var(--primary-yellow);">🧩 单词拼图</h1>
+        <div class="game-score">得分: <span class="score-display" id="puzzleScore">0</span></div>
+      </div>
+      <div class="puzzle-game">
+        <div class="puzzle-target" id="puzzleTarget"></div>
+        <div class="puzzle-slots" id="puzzleSlots"></div>
+        <div class="puzzle-letters" id="puzzleLetters"></div>
+      </div>
+      <button class="back-btn" onclick="backToMenu()" style="display: block; margin: 30px auto;">返回游戏菜单</button>
+    </div>
+  </div>
+
+  <script src="../data/content.js"></script>
+  <script src="../js/main.js"></script>
+  <script>
+    // 游戏状态
+    let currentGame = null;
+    let memoryScore = 0;
+    let listeningScore = 0;
+    let puzzleScore = 0;
+    
+    // 记忆游戏状态
+    let memoryCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    
+    // 听音游戏状态
+    let currentQuestion = null;
+    let listeningQuestions = [];
+    let currentQuestionIndex = 0;
+    
+    // 拼图游戏状态
+    let currentPuzzle = null;
+    let puzzleSlots = [];
+    let puzzleLetters = [];
+
+    // 开始游戏
+    function startGame(game) {
+      SoundManager.playClick();
+      currentGame = game;
+      
+      document.getElementById('gamesMenu').classList.add('hidden');
+      document.getElementById('memoryGame').classList.add('hidden');
+      document.getElementById('listeningGame').classList.add('hidden');
+      document.getElementById('puzzleGame').classList.add('hidden');
+      
+      if (game === 'memory') {
+        document.getElementById('memoryGame').classList.remove('hidden');
+        initMemoryGame();
+      } else if (game === 'listening') {
+        document.getElementById('listeningGame').classList.remove('hidden');
+        initListeningGame();
+      } else if (game === 'puzzle') {
+        document.getElementById('puzzleGame').classList.remove('hidden');
+        initPuzzleGame();
+      }
+    }
+
+    // 返回菜单
+    function backToMenu() {
+      SoundManager.playClick();
+      currentGame = null;
+      document.getElementById('gamesMenu').classList.remove('hidden');
+      document.getElementById('memoryGame').classList.add('hidden');
+      document.getElementById('listeningGame').classList.add('hidden');
+      document.getElementById('puzzleGame').classList.add('hidden');
+    }
+
+    // ========== 记忆翻牌游戏 ==========
+    function initMemoryGame() {
+      memoryScore = 0;
+      matchedPairs = 0;
+      flippedCards = [];
+      document.getElementById('memoryScore').textContent = '0';
+      
+      // 选择8个单词
+      const allWords = Object.values(wordsData).flat().slice(0, 8);
+      const cards = [];
+      
+      allWords.forEach((word, index) => {
+        cards.push({ type: 'word', content: word.word, id: index });
+        cards.push({ type: 'icon', content: word.icon, id: index });
+      });
+      
+      // 打乱顺序
+      memoryCards = cards.sort(() => Math.random() - 0.5);
+      
+      renderMemoryGrid();
+    }
+
+    function renderMemoryGrid() {
+      const grid = document.getElementById('memoryGrid');
+      grid.innerHTML = '';
+      
+      memoryCards.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'memory-card';
+        cardEl.dataset.index = index;
+        cardEl.dataset.id = card.id;
+        cardEl.onclick = () => flipCard(index);
+        grid.appendChild(cardEl);
+      });
+    }
+
+    function flipCard(index) {
+      const cardEl = document.querySelector(`.memory-card[data-index="${index}"]`);
+      
+      // 不能翻已经翻开的或已匹配的
+      if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) return;
+      // 不能同时翻超过2张
+      if (flippedCards.length >= 2) return;
+      
+      SoundManager.playClick();
+      
+      const card = memoryCards[index];
+      cardEl.classList.add('flipped');
+      cardEl.textContent = card.content;
+      flippedCards.push({ index, id: card.id, element: cardEl });
+      
+      if (flippedCards.length === 2) {
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+      
+      if (card1.id === card2.id) {
+        // 匹配成功
+        setTimeout(() => {
+          card1.element.classList.add('matched');
+          card2.element.classList.add('matched');
+          SoundManager.playCorrect();
+          
+          memoryScore += 10;
+          document.getElementById('memoryScore').textContent = memoryScore;
+          matchedPairs++;
+          
+          flippedCards = [];
+          
+          // 游戏完成
+          if (matchedPairs === 8) {
+            setTimeout(() => {
+              ProgressManager.addStars(2);
+              ProgressManager.setHighScore('memory', memoryScore);
+              ModalManager.show('游戏完成！', `恭喜你！得分: ${memoryScore}`, '🎉', () => {
+                backToMenu();
+              });
+            }, 500);
+          }
+        }, 500);
+      } else {
+        // 匹配失败
+        setTimeout(() => {
+          SoundManager.playWrong();
+          card1.element.classList.remove('flipped');
+          card2.element.classList.remove('flipped');
+          card1.element.textContent = '';
+          card2.element.textContent = '';
+          flippedCards = [];
+        }, 1000);
+      }
+    }
+
+    // ========== 听音选图游戏 ==========
+    function initListeningGame() {
+      listeningScore = 0;
+      currentQuestionIndex = 0;
+      document.getElementById('listeningScore').textContent = '0';
+      
+      // 生成10道题
+      const allWords = Object.values(wordsData).flat();
+      listeningQuestions = [];
+      
+      for (let i = 0; i < 10; i++) {
+        const correct = allWords[Math.floor(Math.random() * allWords.length)];
+        const options = [correct];
+        
+        while (options.length < 3) {
+          const random = allWords[Math.floor(Math.random() * allWords.length)];
+          if (!options.find(o => o.word === random.word)) {
+            options.push(random);
+          }
+        }
+        
+        listeningQuestions.push({
+          correct: correct,
+          options: options.sort(() => Math.random() - 0.5)
+        });
+      }
+      
+      showListeningQuestion();
+    }
+
+    function showListeningQuestion() {
+      if (currentQuestionIndex >= listeningQuestions.length) {
+        ProgressManager.addStars(2);
+        ProgressManager.setHighScore('listening', listeningScore);
+        ModalManager.show('游戏完成！', `恭喜你！得分: ${listeningScore}`, '🎉', () => {
+          backToMenu();
+        });
+        return;
+      }
+      
+      currentQuestion = listeningQuestions[currentQuestionIndex];
+      
+      const optionsGrid = document.getElementById('listeningOptions');
+      optionsGrid.innerHTML = '';
+      
+      currentQuestion.options.forEach((option, index) => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+        card.innerHTML = `<div class="option-image">${option.icon}</div>`;
+        card.onclick = () => selectOption(option, card);
+        optionsGrid.appendChild(card);
+      });
+      
+      // 自动播放
+      setTimeout(() => playQuestion(), 500);
+    }
+
+    function playQuestion() {
+      if (currentQuestion) {
+        SpeechManager.speak(currentQuestion.correct.word);
+      }
+    }
+
+    function selectOption(option, card) {
+      if (option.word === currentQuestion.correct.word) {
+        // 正确
+        card.classList.add('correct');
+        SoundManager.playCorrect();
+        listeningScore += 10;
+        document.getElementById('listeningScore').textContent = listeningScore;
+        
+        setTimeout(() => {
+          currentQuestionIndex++;
+          showListeningQuestion();
+        }, 1000);
+      } else {
+        // 错误
+        card.classList.add('wrong');
+        SoundManager.playWrong();
+        card.classList.add('shake');
+        
+        setTimeout(() => {
+          card.classList.remove('wrong', 'shake');
+        }, 500);
+      }
+    }
+
+    // ========== 单词拼图游戏 ==========
+    function initPuzzleGame() {
+      puzzleScore = 0;
+      document.getElementById('puzzleScore').textContent = '0';
+      nextPuzzle();
+    }
+
+    function nextPuzzle() {
+      const allWords = Object.values(wordsData).flat().filter(w => w.word.length <= 6);
+      currentPuzzle = allWords[Math.floor(Math.random() * allWords.length)];
+      
+      document.getElementById('puzzleTarget').textContent = currentPuzzle.icon;
+      
+      // 创建插槽
+      const slotsContainer = document.getElementById('puzzleSlots');
+      slotsContainer.innerHTML = '';
+      puzzleSlots = [];
+      
+      for (let i = 0; i < currentPuzzle.word.length; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'puzzle-slot';
+        slot.dataset.index = i;
+        slotsContainer.appendChild(slot);
+        puzzleSlots.push({ letter: currentPuzzle.word[i].toUpperCase(), filled: false, element: slot });
+      }
+      
+      // 创建字母选项（包含正确答案和一些干扰项）
+      const letters = currentPuzzle.word.toUpperCase().split('');
+      const extraLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(l => !letters.includes(l));
+      
+      // 添加2个干扰字母
+      for (let i = 0; i < 2; i++) {
+        letters.push(extraLetters[Math.floor(Math.random() * extraLetters.length)]);
+      }
+      
+      const lettersContainer = document.getElementById('puzzleLetters');
+      lettersContainer.innerHTML = '';
+      
+      letters.sort(() => Math.random() - 0.5).forEach(letter => {
+        const letterEl = document.createElement('div');
+        letterEl.className = 'puzzle-letter';
+        letterEl.textContent = letter;
+        letterEl.onclick = () => selectLetter(letter, letterEl);
+        lettersContainer.appendChild(letterEl);
+      });
+      
+      // 播放单词
+      setTimeout(() => {
+        SpeechManager.speak(currentPuzzle.word);
+      }, 500);
+    }
+
+    function selectLetter(letter, element) {
+      SoundManager.playClick();
+      
+      // 找到第一个空插槽
+      const emptySlot = puzzleSlots.find(slot => !slot.filled);
+      
+      if (emptySlot) {
+        if (letter === emptySlot.letter) {
+          // 正确
+          emptySlot.filled = true;
+          emptySlot.element.textContent = letter;
+          emptySlot.element.classList.add('filled');
+          element.style.visibility = 'hidden';
+          SoundManager.playCorrect();
+          
+          // 检查是否完成
+          if (puzzleSlots.every(slot => slot.filled)) {
+            puzzleScore += 10;
+            document.getElementById('puzzleScore').textContent = puzzleScore;
+            
+            setTimeout(() => {
+              SpeechManager.speak(currentPuzzle.word);
+              
+              if (puzzleScore >= 50) {
+                ProgressManager.addStars(2);
+                ProgressManager.setHighScore('puzzle', puzzleScore);
+                ModalManager.show('游戏完成！', `恭喜你！得分: ${puzzleScore}`, '🎉', () => {
+                  backToMenu();
+                });
+              } else {
+                nextPuzzle();
+              }
+            }, 1000);
+          }
+        } else {
+          // 错误
+          element.classList.add('shake');
+          SoundManager.playWrong();
+          
+          setTimeout(() => {
+            element.classList.remove('shake');
+          }, 500);
+        }
+      }
+    }
+
+    // 返回大厅
+    function goBack() {
+      SoundManager.playClick();
+      window.location.href = '../hall.html';
+    }
+  </script>
+</body>
+</html>

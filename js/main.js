@@ -43,38 +43,72 @@ const ProgressManager = {
 const SpeechManager = {
   synth: null,
   initialized: false,
+  isSpeaking: false,
   
   init() {
-    if (!this.initialized) {
-      this.synth = window.speechSynthesis;
-      this.initialized = true;
+    try {
+      if (!this.initialized) {
+        // 直接获取语音合成实例
+        this.synth = window.speechSynthesis;
+        this.initialized = true;
+        console.log('Speech synthesis initialized');
+      }
+    } catch (error) {
+      console.error('Error initializing speech synthesis:', error);
     }
   },
   
   speak(text, rate = 0.8, pitch = 1.2) {
-    // 确保初始化
-    this.init();
-    
-    if (!this.synth) {
-      console.warn('Speech synthesis not supported');
-      return;
+    try {
+      // 确保初始化
+      this.init();
+      
+      if (!this.synth) {
+        console.warn('Speech synthesis not supported');
+        return;
+      }
+      
+      // 取消之前的语音
+      this.synth.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = 1;
+      
+      // 添加事件监听器
+      utterance.onstart = () => {
+        this.isSpeaking = true;
+        console.log('Speech started:', text);
+      };
+      
+      utterance.onend = () => {
+        this.isSpeaking = false;
+        console.log('Speech ended');
+      };
+      
+      utterance.onerror = (event) => {
+        this.isSpeaking = false;
+        console.error('Speech error:', event);
+      };
+      
+      this.synth.speak(utterance);
+    } catch (error) {
+      console.error('Error speaking:', error);
+      this.isSpeaking = false;
     }
-    
-    // 取消之前的语音
-    this.synth.cancel();
-    
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-    utterance.volume = 1;
-    
-    this.synth.speak(utterance);
   },
   
   stop() {
-    if (this.synth) {
-      this.synth.cancel();
+    try {
+      if (this.synth) {
+        this.synth.cancel();
+        this.isSpeaking = false;
+        console.log('Speech stopped');
+      }
+    } catch (error) {
+      console.error('Error stopping speech:', error);
     }
   }
 };
@@ -164,10 +198,28 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 首次用户交互时初始化语音合成
   function handleFirstInteraction() {
-    SpeechManager.init();
-    // 移除事件监听器，避免重复初始化
-    document.removeEventListener('click', handleFirstInteraction);
-    document.removeEventListener('touchstart', handleFirstInteraction);
+    try {
+      // 初始化语音合成
+      SpeechManager.init();
+      
+      // 播放一个简短的测试声音，确保语音合成被激活
+      const testUtterance = new SpeechSynthesisUtterance('Hello');
+      testUtterance.lang = 'en-US';
+      testUtterance.rate = 1;
+      testUtterance.pitch = 1;
+      testUtterance.volume = 0.1; // 低音量，避免打扰用户
+      
+      if (SpeechManager.synth) {
+        SpeechManager.synth.speak(testUtterance);
+        console.log('Test speech played to activate synthesis');
+      }
+    } catch (error) {
+      console.error('Error during first interaction:', error);
+    } finally {
+      // 移除事件监听器，避免重复初始化
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+    }
   }
   
   // 添加事件监听器以捕获首次交互

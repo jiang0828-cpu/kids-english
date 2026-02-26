@@ -22,12 +22,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
 body {
@@ -36,9 +30,6 @@ body {
   min-height: 100vh;
   color: var(--text-dark);
   overflow-x: hidden;
-  touch-action: manipulation;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* 容器 */
@@ -154,10 +145,6 @@ body {
   transition: var(--transition);
   box-shadow: 0 6px 12px rgba(255, 213, 79, 0.4);
   animation: pulse 2s infinite;
-  min-width: 280px;
-  min-height: 80px;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes pulse {
@@ -195,13 +182,6 @@ body {
   transition: var(--transition);
   box-shadow: var(--shadow);
   border: 4px solid transparent;
-  min-height: 200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
 }
 
 .module-card:hover {
@@ -266,9 +246,8 @@ body {
 .mode-selector {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 20px;
   margin-top: 30px;
-  flex-wrap: wrap;
 }
 
 .mode-btn {
@@ -280,13 +259,6 @@ body {
   cursor: pointer;
   transition: var(--transition);
   background: white;
-  min-width: 180px;
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .mode-btn.parent {
@@ -328,13 +300,6 @@ body {
   transition: var(--transition);
   box-shadow: var(--shadow);
   border: 3px solid var(--primary-blue);
-  min-height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
 }
 
 .letter-card:hover {
@@ -417,13 +382,6 @@ body {
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--shadow);
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
 }
 
 .word-card:hover {
@@ -481,10 +439,6 @@ body {
   border-radius: 15px;
   cursor: pointer;
   transition: var(--transition);
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  min-height: 100px;
 }
 
 .dialogue-line:hover {
@@ -534,10 +488,6 @@ body {
   display: flex;
   align-items: center;
   gap: 25px;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  min-height: 120px;
 }
 
 .song-item:hover {
@@ -729,10 +679,6 @@ body {
   transition: var(--transition);
   box-shadow: var(--shadow);
   border: 3px solid white;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  min-height: 80px;
 }
 
 .memory-card:hover {
@@ -796,13 +742,6 @@ body {
   transition: var(--transition);
   box-shadow: var(--shadow);
   border: 3px solid transparent;
-  min-height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
 }
 
 .option-card:hover {
@@ -882,9 +821,6 @@ body {
   transition: var(--transition);
   box-shadow: var(--shadow);
   border: 2px solid white;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
 }
 
 .puzzle-letter:hover {
@@ -972,7 +908,6 @@ body {
 }
 
 /* 响应式设计 */
-/* 平板和大屏手机 */
 @media (max-width: 768px) {
   .welcome-title {
     font-size: 32px;
@@ -1001,156 +936,6 @@ body {
   
   .options-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .header {
-    padding: 10px 15px;
-  }
-  
-  .logo {
-    font-size: 24px;
-  }
-  
-  .logo-icon {
-    font-size: 32px;
-  }
-  
-  .back-btn {
-    padding: 10px 20px;
-    font-size: 16px;
-  }
-  
-  .module-title {
-    font-size: 36px;
-  }
-}
-
-/* 小屏手机 */
-@media (max-width: 480px) {
-  .welcome-title {
-    font-size: 28px;
-  }
-  
-  .welcome-subtitle {
-    font-size: 18px;
-  }
-  
-  .start-btn {
-    font-size: 20px;
-    padding: 18px 32px;
-  }
-  
-  .hall-title {
-    font-size: 28px;
-  }
-  
-  .module-card {
-    padding: 30px 20px;
-  }
-  
-  .module-icon {
-    font-size: 60px;
-  }
-  
-  .module-name {
-    font-size: 24px;
-  }
-  
-  .alphabet-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .letter {
-    font-size: 40px;
-  }
-  
-  .letter-word {
-    font-size: 16px;
-  }
-  
-  .letter-icon {
-    font-size: 32px;
-  }
-  
-  .words-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .word-text {
-    font-size: 24px;
-  }
-  
-  .memory-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .memory-card {
-    font-size: 40px;
-  }
-  
-  .options-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .option-image {
-    font-size: 50px;
-  }
-  
-  .puzzle-letter {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-  }
-  
-  .puzzle-slot {
-    width: 60px;
-    height: 60px;
-    font-size: 32px;
-  }
-  
-  .dialogue-english {
-    font-size: 20px;
-  }
-  
-  .song-title {
-    font-size: 20px;
-  }
-  
-  .song-number {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-  }
-  
-  .song-play-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-  }
-  
-  .mode-btn {
-    padding: 12px 30px;
-    font-size: 18px;
-  }
-  
-  .play-sound-btn {
-    width: 120px;
-    height: 120px;
-    font-size: 50px;
-  }
-  
-  .container {
-    padding: 10px;
-  }
-  
-  .header {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-  
-  .progress-bar {
-    margin-top: 5px;
   }
 }
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KidsEnglish - 儿童英语乐园</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="welcome-page">
+    <div class="mascot">🐼</div>
+    <h1 class="welcome-title">KidsEnglish</h1>
+    <p class="welcome-subtitle">儿童英语乐园 - 快乐学英语！</p>
+    <button class="start-btn" onclick="startLearning()">开始冒险！</button>
+  </div>
+
+  <script src="data/content.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    function startLearning() {
+      SoundManager.playClick();
+      window.location.href = 'hall.html';
+    }
+  </script>
+</body>
+</html>

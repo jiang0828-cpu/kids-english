@@ -15,7 +15,7 @@
 
 ## 🚀 在线访问
 
-访问地址：https://jiang0828-cpu.github.io/kids-english
+访问地址：https://[你的用户名].github.io/kids-english
 
 ## 📱 本地使用
 
@@ -61,7 +61,7 @@ git add .
 git commit -m "Initial commit"
 
 # 添加远程仓库（替换为你的用户名）
-git remote add origin https://github.com/jiang0828-cpu/kids-english.git
+git remote add origin https://github.com/[你的用户名]/kids-english.git
 
 # 推送到 GitHub
 git branch -M main
@@ -85,7 +85,7 @@ git push -u origin main
 
 部署完成后，访问地址：
 ```
-https://jiang0828-cpu.github.io/kids-english
+https://[你的用户名].github.io/kids-english
 ```
 
 ## 📝 项目结构

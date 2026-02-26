@@ -41,9 +41,20 @@ const ProgressManager = {
 
 // 语音合成
 const SpeechManager = {
-  synth: window.speechSynthesis,
+  synth: null,
+  initialized: false,
+  
+  init() {
+    if (!this.initialized) {
+      this.synth = window.speechSynthesis;
+      this.initialized = true;
+    }
+  },
   
   speak(text, rate = 0.8, pitch = 1.2) {
+    // 确保初始化
+    this.init();
+    
     if (!this.synth) {
       console.warn('Speech synthesis not supported');
       return;
@@ -150,6 +161,18 @@ const ModalManager = {
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
   ProgressManager.updateStarDisplay();
+  
+  // 首次用户交互时初始化语音合成
+  function handleFirstInteraction() {
+    SpeechManager.init();
+    // 移除事件监听器，避免重复初始化
+    document.removeEventListener('click', handleFirstInteraction);
+    document.removeEventListener('touchstart', handleFirstInteraction);
+  }
+  
+  // 添加事件监听器以捕获首次交互
+  document.addEventListener('click', handleFirstInteraction);
+  document.addEventListener('touchstart', handleFirstInteraction);
   
   // 添加点击音效
   document.querySelectorAll('button, .module-card, .letter-card, .word-card').forEach(el => {
